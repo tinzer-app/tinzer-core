@@ -17,15 +17,12 @@ export class ReportsService {
     async makeReport(requestReportDto: RequestReportDto): Promise<ResponseReportDto> {
         let projects: ProjectDto[] = requestReportDto.projects;
         let conditions: RuleDto[] = requestReportDto.conditions;
-        console.log(requestReportDto);
-
 
         let responseReport: ResponseReportDto = new ResponseReportDto();
         responseReport.conditions_count = conditions.length;
         responseReport.projects_count = projects.length;
         responseReport.inspection = new Array<{project: ProjectDto, result: boolean[]}>(projects.length);
 
-        console.log(responseReport);
         let gitHelper: GitHelperInterface = null;
 
         for (let i: number = 0; i < projects.length; i++) {
@@ -38,15 +35,11 @@ export class ReportsService {
                 // todo get command provider
                 let command: ConditionCommandInterface = this.getConditionCommand(conditions[j].type);
 
-                // if (responseReport.conditions.length < conditions.length) {
-                //     responseReport.conditions.push(conditions[j]);
-                // }
+
                 responseReport.conditions[j] = conditions[j];
 
-                // inspectionResult.push(await command?.execute(gitHelper, projects[i], conditions[j].params));
                 inspectionResult[j] = await command?.execute(gitHelper, projects[i], conditions[j].params);
             }
-            // responseReport.inspection.push({project: projects[i], result: inspectionResult})
             responseReport.inspection[i] = {project: projects[i], result: inspectionResult};
         }
         return Promise.resolve(responseReport);
