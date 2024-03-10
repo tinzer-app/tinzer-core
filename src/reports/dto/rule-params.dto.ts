@@ -5,11 +5,13 @@ export class FindFileParamsDto {
     readonly branch?: string;
 }
 
-export class FindLineParamsDto extends FindFileParamsDto{
+export class FindLineParamsDto {
+    readonly filePath: string;
     readonly line: string;
 }
 
-export class CheckFieldParamsDto extends FindFileParamsDto{
+export class CheckFieldParamsDto {
+    readonly filePath: string;
     readonly field: string;
     readonly value: string;
 }

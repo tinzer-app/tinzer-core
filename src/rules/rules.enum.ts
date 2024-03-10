@@ -1,5 +1,5 @@
 export enum RulesEnum{
-    FindFile= "findFile",
-    FindLine = "findLine",
+    FindFile= "FindFile",
+    FindLine = "FindLine",
     CheckField = "CheckField"
 }

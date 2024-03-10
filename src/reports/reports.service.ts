@@ -15,11 +15,15 @@ export class ReportsService {
     // todo check request body
     // todo manage rate limit for api calls
     async makeReport(requestReportDto: RequestReportDto): Promise<ResponseReportDto> {
-        let responseReport: ResponseReportDto = new ResponseReportDto();
         let projects: ProjectDto[] = requestReportDto.projects;
         let conditions: RuleDto[] = requestReportDto.conditions;
+        console.log(requestReportDto);
+
+
+        let responseReport: ResponseReportDto = new ResponseReportDto();
         responseReport.conditions_count = conditions.length;
         responseReport.projects_count = projects.length;
+        responseReport.inspection = new Array<{project: ProjectDto, result: boolean[]}>(projects.length);
 
         console.log(responseReport);
         let gitHelper: GitHelperInterface = null;
@@ -28,20 +32,22 @@ export class ReportsService {
             // todo get githelper provider
             gitHelper = this.getGitHelper(projects[i].system);
 
-            let inspectionResult: boolean[] = [];
+            let inspectionResult: boolean[] = new Array<boolean>(conditions.length);
 
             for (let j: number = 0; j < conditions.length; j++) {
+                // todo get command provider
                 let command: ConditionCommandInterface = this.getConditionCommand(conditions[j].type);
-                console.log(conditions[j].type);
-                console.log(command);
 
-                if (responseReport.conditions.length < conditions.length) {
-                    responseReport.conditions.push(conditions[j]);
-                }
-                inspectionResult.push(await command?.execute(gitHelper, projects[i], conditions[j].params));
+                // if (responseReport.conditions.length < conditions.length) {
+                //     responseReport.conditions.push(conditions[j]);
+                // }
+                responseReport.conditions[j] = conditions[j];
+
+                // inspectionResult.push(await command?.execute(gitHelper, projects[i], conditions[j].params));
+                inspectionResult[j] = await command?.execute(gitHelper, projects[i], conditions[j].params);
             }
-            responseReport.inspection.push({project: projects[i], result: inspectionResult})
-
+            // responseReport.inspection.push({project: projects[i], result: inspectionResult})
+            responseReport.inspection[i] = {project: projects[i], result: inspectionResult};
         }
         return Promise.resolve(responseReport);
     }

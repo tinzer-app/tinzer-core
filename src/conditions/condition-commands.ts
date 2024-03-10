@@ -8,14 +8,19 @@ export interface ConditionCommandInterface {
 
 export class FindFileCommand implements ConditionCommandInterface {
     async execute(gitHelper: GitHelperInterface, project: ProjectDto, condition: FindFileParamsDto): Promise<boolean> {
-        let gitResponse = await gitHelper?.getFile(
-            project.owner,
-            project.repo,
-            condition.filePath
-        );
-        console.log(gitResponse.status);
-        console.log(gitResponse.content);
-        return Promise.resolve(gitResponse.status == 200);
+        try {
+            let gitResponse = await gitHelper?.getFile(
+                project.owner,
+                project.repo,
+                condition.filePath
+            );
+
+            return Promise.resolve(gitResponse.status == 200);
+        }
+        catch (error) {
+            
+            return  Promise.resolve(false);
+        }
     }
 }
 
