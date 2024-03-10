@@ -4,6 +4,7 @@ import {GitHelperClass} from "../git-helper.class";
 import {Data, GithubResponse} from "./github.response";
 import { Buffer } from 'node:buffer';
 import * as process from "process";
+import {HttpException} from "@nestjs/common";
 
 // todo injectable
 export class GitHubAPIHelper extends GitHelperClass
@@ -18,7 +19,7 @@ export class GitHubAPIHelper extends GitHelperClass
     async getFile(owner: string, repo: string, filePath: string, branch?: string): Promise<GithubResponse> {
         let response: GithubResponse = {status: 0};
         try {
-            const result = await this.octokit.request(
+            let octokitResponse = await this.octokit.request(
                 "GET /repos/{owner}/{repo}/contents/{path}",
                 {
                     owner: owner,
@@ -26,14 +27,19 @@ export class GitHubAPIHelper extends GitHelperClass
                     path: filePath
                 }
             );
-            response.status = result.status;
-            // console.log(response.status);
-            if (result.status == 200) {
-                response.data = (result.data as Data);
+            console.log("GitHubAPIHelper.getFile: ockokit data\n\t");
+            console.log(octokitResponse.data);
+            response.status = octokitResponse.status;
+
+            if (octokitResponse.status == 200) {
+                response.data = (octokitResponse.data as Data);
             }
             // console.log("GitHubAPIHelper.getFile: response.data\n" + response.data);
         } catch (error) {
-            return Promise.reject(error);
+            if (error instanceof HttpException) {
+                response.status = error.getStatus();
+            }
+            response.status = error.status;
         }
         return Promise.resolve(response);
     }
