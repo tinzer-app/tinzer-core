@@ -27,6 +27,8 @@ export class GitHubAPIHelper extends GitHelperClass
                     path: filePath
                 }
             );
+            // todo delete
+            console.log("get file status: " + octokitResponse.status);
 
             response.status = octokitResponse.status;
 
@@ -38,6 +40,9 @@ export class GitHubAPIHelper extends GitHelperClass
                 response.status = error.getStatus();
             }
             response.status = error.status;
+            // todo delete
+            console.log("get file error:");
+            console.log(error);
         }
         return Promise.resolve(response);
     }
@@ -52,12 +57,18 @@ export class GitHubAPIHelper extends GitHelperClass
                     path: filePath
                 }
             );
+            // todo delete
+            console.log("get file status: " + octokitResponse.status);
+
             response.status = octokitResponse.status;
             if (octokitResponse.status == 200) {
                 response.data = JSON.parse(JSON.stringify(octokitResponse.data)) as Data;
             }
             response.content = Buffer.from(response.data.content, 'base64').toString('utf8').split('\n');
         } catch (error) {
+            // todo delete
+            console.log("read file error:");
+            console.log(error);
             if (error instanceof HttpException) {
                 response.status = error.getStatus();
             }
