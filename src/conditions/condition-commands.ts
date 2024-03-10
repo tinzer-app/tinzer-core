@@ -14,11 +14,9 @@ export class FindFileCommand implements ConditionCommandInterface {
                 project.repo,
                 condition.filePath
             );
-
             return Promise.resolve(gitResponse.status == 200);
         }
         catch (error) {
-            
             return  Promise.resolve(false);
         }
     }
@@ -26,15 +24,21 @@ export class FindFileCommand implements ConditionCommandInterface {
 
 export class FindLineCommand implements ConditionCommandInterface {
     async execute(gitHelper: GitHelperInterface, project: ProjectDto, condition: FindLineParamsDto): Promise<boolean> {
-        let gitResponse = await gitHelper?.readFile(
-            project.owner,
-            project.repo,
-            condition.filePath
-        );
-        if (gitResponse.status != 200 || gitResponse.content == null) {
+        try {
+            let gitResponse = await gitHelper?.readFile(
+                project.owner,
+                project.repo,
+                condition.filePath
+            );
+            if (gitResponse.status != 200 || gitResponse.content == null) {
+                return Promise.resolve(false);
+            } else {
+                gitResponse.content = gitResponse.content?.map((line: string) => line.trim());
+                let searchLine: string = condition.line.trim();
+                return Promise.resolve(gitResponse.content.includes(searchLine));
+            }
+        } catch (error) {
             return Promise.resolve(false);
-        } else {
-            return Promise.resolve( gitResponse.content.includes(condition.line));
         }
     }
 }
