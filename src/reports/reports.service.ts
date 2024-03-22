@@ -20,8 +20,8 @@ export class ReportsService {
     // todo check request body
     // todo manage rate limit for api calls
     async makeReport(requestReportDto: RequestReportDto): Promise<ResponseReportDto> {
-        let projects: ProjectDto[] = requestReportDto.projects;
-        let conditions: RuleDto[] = requestReportDto.conditions;
+        let projects: ProjectDto[] = requestReportDto.projects ?? [];
+        let conditions: RuleDto[] = requestReportDto.conditions ?? [];
 
         let responseReport: ResponseReportDto = new ResponseReportDto();
         responseReport.conditions_count = conditions.length;
