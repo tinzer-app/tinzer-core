@@ -6,7 +6,12 @@ import {GitHelperInterface} from "../git-api-helpers/git-helper.interface";
 import {RulesEnum} from "../rules/rules.enum";
 import {ProjectDto} from "./dto/project.dto";
 import {RuleDto} from "./dto/rule.dto";
-import {ConditionCommandInterface, FindFileCommand, FindLineCommand} from "../conditions/condition-commands";
+import {
+    CheckFieldCommand,
+    ConditionCommandInterface,
+    FindFileCommand,
+    FindLineCommand
+} from "../conditions/condition-commands";
 
 @Injectable()
 export class ReportsService {
@@ -15,8 +20,8 @@ export class ReportsService {
     // todo check request body
     // todo manage rate limit for api calls
     async makeReport(requestReportDto: RequestReportDto): Promise<ResponseReportDto> {
-        let projects: ProjectDto[] = requestReportDto.projects;
-        let conditions: RuleDto[] = requestReportDto.conditions;
+        let projects: ProjectDto[] = requestReportDto.projects ?? [];
+        let conditions: RuleDto[] = requestReportDto.conditions ?? [];
 
         let responseReport: ResponseReportDto = new ResponseReportDto();
         responseReport.conditions_count = conditions.length;
@@ -34,8 +39,8 @@ export class ReportsService {
             for (let j: number = 0; j < conditions.length; j++) {
                 // todo get command provider
                 let command: ConditionCommandInterface = this.getConditionCommand(conditions[j].type);
-
-
+                // todo delete
+                console.log(command);
                 responseReport.conditions[j] = conditions[j];
 
                 inspectionResult[j] = await command?.execute(gitHelper, projects[i], conditions[j].params);
@@ -61,6 +66,8 @@ export class ReportsService {
                 return new FindFileCommand();
             case RulesEnum.FindLine:
                 return new FindLineCommand();
+            case RulesEnum.CheckField:
+                return new CheckFieldCommand();
             default:
                 return null;
         }
