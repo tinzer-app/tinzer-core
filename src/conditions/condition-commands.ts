@@ -1,6 +1,7 @@
 import {GitHelperInterface} from "../git-api-helpers/git-helper.interface";
 import {ProjectDto} from "../reports/dto/project.dto";
 import {CheckFieldParamsDto, FindFileParamsDto, FindLineParamsDto, RuleParams} from "../reports/dto/rule-params.dto";
+import {load} from "js-yaml"
 
 export interface ConditionCommandInterface {
      execute(gitHelper: GitHelperInterface, project: ProjectDto, condition: RuleParams): Promise<boolean>;
@@ -60,15 +61,22 @@ export class CheckFieldCommand implements ConditionCommandInterface {
             } else {
                 // todo check extension with path
                 if (condition.filePath.split('.').at(-1) == "json") {
-                    let jsonString: string = gitResponse.content.join('\n');
-                    let jsonObject = JSON.parse(jsonString);
+                    const jsonString: string = gitResponse.content.join("\n");
+                    const jsonObject = JSON.parse(jsonString);
 
                     if (jsonObject.hasOwnProperty(condition.field)) {
                         console.log(jsonObject[condition.field]);
                         return Promise.resolve(jsonObject[condition.field] == condition.value);
                     }
-                } else if (condition.filePath.split('.').at(-1) == "yaml") {
+                } else if (condition.filePath.split('.').at(-1) == "yaml" || condition.filePath.split('.').at(-1) == "yml") {
+                    const yamlString: string = gitResponse.content.join("\n");
+                    const yamlObject = load(yamlString);
+                    // todo delete
+                    console.log(yamlObject);
 
+                    if (yamlObject.hasOwnProperty(condition.field)) {
+                        return Promise.resolve(yamlObject[condition.field] == condition.value);
+                    }
                 }
             }
         } catch (error) {

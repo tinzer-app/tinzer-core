@@ -3,6 +3,7 @@ import {Octokit} from "@octokit/core";
 import {GitHelperClass} from "../git-helper.class";
 import {Data, GithubResponse} from "./github.response";
 import { Buffer } from 'node:buffer';
+import 'dotenv/config';
 import * as process from "process";
 import {HttpException} from "@nestjs/common";
 
@@ -57,8 +58,6 @@ export class GitHubAPIHelper extends GitHelperClass
                     path: filePath
                 }
             );
-            // todo delete
-            console.log("get file status: " + octokitResponse.status);
 
             response.status = octokitResponse.status;
             if (octokitResponse.status == 200) {
